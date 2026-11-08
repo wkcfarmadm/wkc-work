@@ -2,32 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#1f7a3a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="WKC Work">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WKC Work Tracker</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icons/icon-192.png">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="shared/style.css">
 </head>
 <body>
-  <header class="topbar">
-    <button class="brand" id="homeBtn">🍓 WKC Work Tracker</button>
-    <span class="pill" id="net">● Online</span>
-    <button class="admin-link" id="adminBtn">Admin</button>
-  </header>
-  <div class="savedbar" id="saved"></div>
-  <main id="app"><p class="muted center">Loading…</p></main>
-  <div class="toast" id="toast"></div>
-  <div id="print-area"></div>
-
-  <script src="lib/qrcode.js"></script>
-  <script src="js/db.js"></script>
-  <script src="js/scanner.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/admin.js"></script>
+  <header class="topbar"><span class="brand">🍓 WKC Work Tracker</span></header>
+  <main>
+    <h1>Choose an app</h1>
+    <a class="btn btn-work" style="text-decoration:none;text-align:center" href="buah/"><span class="icon">🍓</span>buah batang buang<small>worker app</small></a>
+    <a class="btn btn-work" style="text-decoration:none;text-align:center" href="daun/"><span class="icon">🍃</span>daun buang · Anak tanam · pokok masuk<small>worker app</small></a>
+    <a class="btn btn-work" style="text-decoration:none;text-align:center;border-color:#1d3f73;color:#1d3f73" href="admin/"><span class="icon">📊</span>Admin Dashboard<small>management</small></a>
+    <p class="muted">Open the app you need, then install it: Android Chrome ⋮ → Install app · iPhone Safari Share → Add to Home Screen.</p>
+  </main>
+  <script>
+    // Remove the old version 1 offline files from this address (v1 lived here).
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { if (r.scope === new URL('./', location.href).href) r.unregister(); });
+      });
+    }
+    if (window.caches) caches.keys().then(function (k) { k.forEach(function (n) { if (n.indexOf('wkc-v1') === 0) caches.delete(n); }); });
+  </script>
 </body>
 </html>

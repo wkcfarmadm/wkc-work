@@ -1,38 +1,37 @@
-WKC Work Tracker – version 1
-============================
+WKC Work Tracker v2 — 3 apps, 1 shared database
+================================================
 
-A web app (PWA) for phones, tablets and PC. Works offline after the first open.
-Admin PIN at first start: 1234  (change it in Admin -> Backup & PIN)
+Apps (after uploading to GitHub Pages):
+  https://<username>.github.io/wkc-work/          -> choose an app
+  https://<username>.github.io/wkc-work/admin/    -> Admin Dashboard (management)
+  https://<username>.github.io/wkc-work/buah/     -> worker app: buah batang buang
+  https://<username>.github.io/wkc-work/daun/     -> worker app: daun buang, Anak tanam, pokok masuk
 
-TRY IT ON YOUR PC (no camera)
-1. Unzip this folder.
-2. Double-click index.html (Chrome or Edge).
-3. Use "Choose from list" instead of scanning.
+ONE-TIME DATABASE SETUP (Supabase, free)
+ 1. supabase.com -> sign up -> New project (choose region Singapore). Save the database password.
+ 2. SQL Editor -> New query -> paste ALL of setup.sql -> Run.
+ 3. Authentication -> Sign In / Providers -> Email: turn OFF "Allow new users to sign up".
+ 4. Authentication -> Users -> Add user -> Create new user (tick Auto Confirm):
+      admin account  (for the Admin Dashboard)
+      staff account  (for all worker phones/tablets)
+ 5. SQL Editor: run  insert into public.app_admins (email) values ('<admin email>');
+ 6. Project Settings -> API (or Data API / API Keys): copy Project URL and the anon public key
+    into shared/config.js.
+ 7. Upload all files to GitHub (replace the old version-1 files).
 
-PUT IT ON PHONES / TABLETS (camera + offline)
-Cameras only work from an https:// address, so the folder must be hosted.
-1. Go to https://app.netlify.com/drop and sign up (free).
-2. Drag this whole folder (the one containing index.html) onto the page.
-3. Netlify gives you a link like https://something.netlify.app – open it on each phone.
-4. Android Chrome: menu ⋮ -> "Add to Home screen" / "Install app".
-   iPhone Safari: Share -> "Add to Home Screen".
-5. Open it once while online. After that it works without internet.
+DEMO MODE: if shared/config.js is empty, the apps run on this device only (for trying).
 
-UPDATING THE APP LATER
-Change the files, then in sw.js increase VERSION (e.g. wkc-v1.0.1), and drag the
-folder onto your Netlify site's "Deploys" page again.
+UPDATING LATER: change files, then increase VERSION in admin/sw.js, buah/sw.js and daun/sw.js.
 
-IMPORTANT IN VERSION 1
-- Data is saved only on each device (no server sync yet).
-- Copy the setup to other devices: Admin -> Backup & PIN -> Export setup, then Import on the other device.
-- Collect records: on each device Admin -> "Full backup", then Import all backups on the admin device.
-- Clearing the browser's data / uninstalling the app deletes that device's records. Export backups regularly.
+SECURITY
+ - Only logged-in accounts can read or write data (Row Level Security in setup.sql).
+ - Only emails in app_admins can change workers, plots, tables, varieties and plant counts.
+ - Nobody can delete work records through the apps.
+ - The anon key in config.js is meant to be public; the database rules protect the data.
+ - Keep the admin and staff passwords private. Change them in Supabase if someone leaves.
 
 FILES
-index.html, css/styles.css   screens and look
-js/app.js                    staff screens, time calculations
-js/admin.js                  admin screens, QR stickers, reports, backup
-js/db.js                     on-device database
-js/scanner.js                camera QR scanning
-lib/qrcode.js                QR code maker (MIT licence, Kazuhiko Arase)
-sw.js                        offline support
+ setup.sql            database tables, security rules, starting data
+ shared/config.js     your Supabase address + key (edit this)
+ shared/*.js          code used by all apps (store = on-device data, sync = upload/download)
+ admin/ buah/ daun/   the three apps

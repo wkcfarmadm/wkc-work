@@ -1,0 +1,14 @@
+{
+  "name": "WKC Admin Dashboard",
+  "short_name": "WKC Admin",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f6f6f2",
+  "theme_color": "#1d3f73",
+  "icons": [
+    { "src": "../icons/admin-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "../icons/admin-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
