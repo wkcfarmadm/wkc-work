@@ -1,5 +1,5 @@
 /* Offline support for this app. When ANY app or shared file changes, increase VERSION. */
-var VERSION = 'wkc2-buah-1.0.0';
+var VERSION = 'wkc2-buah-1.0.2';
 var PREFIX = 'wkc2-buah-';
 var FILES = [
   './', 'index.html', 'manifest.webmanifest', '../shared/worker.js',
