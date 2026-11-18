@@ -120,8 +120,8 @@ function tabOverview() {
       }).join('') + '</table>' : '<p class="empty">No finished work periods on this day.</p>') +
     '<p class="muted">Stock numbers include every record synced to this computer' + (Sync.state.lastSync ? ' (last sync ' + fmtTime(Sync.state.lastSync) + ')' : '') + '.</p>'
   );
-  document.getElementById('ovd').onchange = function (e) { ovDate = e.target.value || ovDate; go(screenAdmin); };
-  document.getElementById('today').onclick = function () { ovDate = dateKey(Date.now()); go(screenAdmin); };
+  document.getElementById('ovd').onchange = function (e) { ovDate = e.target.value || ovDate; stay(); };
+  document.getElementById('today').onclick = function () { ovDate = dateKey(Date.now()); stay(); };
   document.getElementById('syncnow').onclick = function () { Sync.syncNow(); };
 }
 
@@ -177,8 +177,8 @@ function tabRecords() {
         '</td><td>' + (p.from_plot_id ? esc(plotName(p.from_plot_id)) + ' → ' : '') + esc(p.to_loc_label) + '</td><td>' + esc(workerNames(p.worker_ids)) + '</td><td>' + syncBadge('plantings', p.id) + '</td></tr>';
     }).join('') + '</table>'
   );
-  document.getElementById('rf').onchange = function (e) { recFrom = e.target.value || recFrom; go(screenAdmin); };
-  document.getElementById('rt').onchange = function (e) { recTo = e.target.value || recTo; go(screenAdmin); };
+  document.getElementById('rf').onchange = function (e) { recFrom = e.target.value || recFrom; stay(); };
+  document.getElementById('rt').onchange = function (e) { recTo = e.target.value || recTo; stay(); };
   var tag = recFrom + '_' + recTo;
   document.getElementById('c1').onclick = function () {
     var out = [];
@@ -255,7 +255,7 @@ function tabStock() {
         }).join('') + '</table>' : '<p class="empty">No movements yet.</p>') : '<p class="empty">No plots.</p>')
   );
   var sp = document.getElementById('sp');
-  if (sp) sp.onchange = function () { stockPlotId = sp.value; go(screenAdmin); };
+  if (sp) sp.onchange = function () { stockPlotId = sp.value; stay(); };
   var ss = document.getElementById('sset');
   if (ss) ss.onclick = function () {
     var note = document.getElementById('snote').value.trim(), recs = [], now = nowIso(), who = (Sync.session() || {}).email || 'demo';
@@ -267,13 +267,13 @@ function tabStock() {
       if (diff) recs.push({ id: Store.uid(), plot_id: stockPlotId, variety_id: vid, quantity: diff, note: note || 'Set count to ' + want, at: now, created_by: who, deleted: false });
     });
     if (!recs.length) return toast('Nothing changed');
-    saveRec('stock_adjustments', recs).then(function () { savedToast(); go(screenAdmin); });
+    saveRec('stock_adjustments', recs).then(function () { savedToast(); stay(); });
   };
   appEl.querySelectorAll('[data-undo]').forEach(function (b) {
     b.onclick = function () {
       if (!confirm('Remove this count change? Plant numbers will be recalculated.')) return;
       var a = byId('stock_adjustments', b.getAttribute('data-undo'));
-      saveRec('stock_adjustments', Object.assign({}, a, { deleted: true })).then(function () { savedToast(); go(screenAdmin); });
+      saveRec('stock_adjustments', Object.assign({}, a, { deleted: true })).then(function () { savedToast(); stay(); });
     };
   });
 }
@@ -291,7 +291,7 @@ function nameList(t, label, help) {
     var n = document.getElementById('nn').value.trim();
     if (!n) return toast('Type a name first');
     if (Store.cache[t].some(function (r) { return r.name.toLowerCase() === n.toLowerCase(); })) return toast('That name already exists');
-    saveRec(t, { id: Store.uid(), name: n, active: true, sort: nextSort(t), created_at: nowIso() }).then(function () { savedToast(); go(screenAdmin); });
+    saveRec(t, { id: Store.uid(), name: n, active: true, sort: nextSort(t), created_at: nowIso() }).then(function () { savedToast(); stay(); });
   };
   appEl.querySelectorAll('[data-name]').forEach(function (inp) {
     inp.onchange = function () {
@@ -301,7 +301,7 @@ function nameList(t, label, help) {
     };
   });
   appEl.querySelectorAll('[data-tog]').forEach(function (b) {
-    b.onclick = function () { var r = byId(t, b.getAttribute('data-tog')); saveRec(t, Object.assign({}, r, { active: !r.active })).then(function () { go(screenAdmin); }); };
+    b.onclick = function () { var r = byId(t, b.getAttribute('data-tog')); saveRec(t, Object.assign({}, r, { active: !r.active })).then(function () { stay(); }); };
   });
 }
 function tabWorkers() { nameList('workers', 'worker', 'Edit a name and tap outside the box to save. Deactivated workers disappear from the name lists in the worker apps; their records are kept.'); }
@@ -333,7 +333,7 @@ function tabPlots() {
     if (Store.cache.plots.some(function (p) { return p.name.toLowerCase() === n.toLowerCase(); })) return toast('That plot already exists');
     saveRec('plots', { id: Store.uid(), name: n, layout: document.getElementById('pl').value, is_nursery: document.getElementById('pnur').checked,
       capacity: Math.max(0, parseInt(document.getElementById('pc').value, 10) || 0), active: true, sort: nextSort('plots'), created_at: nowIso() })
-      .then(function () { savedToast(); go(screenAdmin); });
+      .then(function () { savedToast(); stay(); });
   };
   appEl.querySelectorAll('[data-open]').forEach(function (b) { b.onclick = function () { editPlotId = b.getAttribute('data-open'); go(screenAdmin); }; });
 }
@@ -371,9 +371,9 @@ function plotEditor(plotId) {
     var n = document.getElementById('pn').value.trim();
     if (!n) return toast('Name cannot be empty');
     saveRec('plots', Object.assign({}, p, { name: n, layout: document.getElementById('pl').value, is_nursery: document.getElementById('pnur').checked,
-      capacity: Math.max(0, parseInt(document.getElementById('pc').value, 10) || 0) })).then(function () { savedToast(); go(screenAdmin); });
+      capacity: Math.max(0, parseInt(document.getElementById('pc').value, 10) || 0) })).then(function () { savedToast(); stay(); });
   };
-  document.getElementById('togp').onclick = function () { saveRec('plots', Object.assign({}, p, { active: !p.active })).then(function () { go(screenAdmin); }); };
+  document.getElementById('togp').onclick = function () { saveRec('plots', Object.assign({}, p, { active: !p.active })).then(function () { stay(); }); };
   document.getElementById('addt').onclick = function () {
     var prefix = document.getElementById('tp').value, from = parseInt(document.getElementById('tf').value, 10), to = parseInt(document.getElementById('tt').value, 10);
     var cap = Math.max(0, parseInt(document.getElementById('tc').value, 10) || 0);
@@ -387,7 +387,7 @@ function plotEditor(plotId) {
       add.push({ id: Store.uid(), plot_id: plotId, name: nm, capacity: cap, gutters: gut, active: true, sort: ++sort, created_at: nowIso() });
     }
     if (!add.length) return toast('All of these already exist');
-    saveRec('plot_tables', add).then(function () { toast('Added ' + add.length + (skip ? ' (skipped ' + skip + ' existing)' : '')); go(screenAdmin); });
+    saveRec('plot_tables', add).then(function () { toast('Added ' + add.length + (skip ? ' (skipped ' + skip + ' existing)' : '')); stay(); });
   };
   function bind(attr, field, parse) {
     appEl.querySelectorAll('[' + attr + ']').forEach(function (inp) {
@@ -403,7 +403,7 @@ function plotEditor(plotId) {
   bind('data-tc', 'capacity', function (v) { var n = parseInt(v, 10); return isNaN(n) || n < 0 ? null : n; });
   bind('data-tg', 'gutters', function (v) { var n = parseInt(v, 10); return isNaN(n) || n < 1 ? null : n; });
   appEl.querySelectorAll('[data-tt]').forEach(function (b) {
-    b.onclick = function () { var t = byId('plot_tables', b.getAttribute('data-tt')); saveRec('plot_tables', Object.assign({}, t, { active: !t.active })).then(function () { go(screenAdmin); }); };
+    b.onclick = function () { var t = byId('plot_tables', b.getAttribute('data-tt')); saveRec('plot_tables', Object.assign({}, t, { active: !t.active })).then(function () { stay(); }); };
   });
 }
 plotEditor.refreshable = false;
@@ -423,6 +423,15 @@ function stickerHtml(kind, o) {
     '<div class="st-line">Table capacity: <b>' + fmtNum(o.capacity || 0) + '</b> plants</div><div class="st-brand">WKC strawberry farm</div></div></div>';
 }
 var qrPlotId = null;
+function qrPaper() { return Store.getMeta('qr_paper', 'label'); }
+// The printed page size must match the paper, otherwise the browser shrinks everything.
+function setPrintPage(kind) {
+  var el = document.getElementById('page-style');
+  if (!el) { el = document.createElement('style'); el.id = 'page-style'; document.head.appendChild(el); }
+  el.textContent = kind === 'label'
+    ? '@media print { @page { size: 100mm 50mm; margin: 0; } }'
+    : '@media print { @page { size: A4; margin: 5mm; } }';
+}
 function tabQR() {
   var plots = activePlots();
   if (!qrPlotId || !byId('plots', qrPlotId)) qrPlotId = plots.length ? plots[0].id : null;
@@ -431,14 +440,20 @@ function tabQR() {
   render(adminHeader() +
     '<p class="muted">Choose a plot, tick the stickers you need, then Print. Each table sticker shows the plot, table and table capacity.</p>' +
     (unsynced ? '<p class="warn">Some tables are not synced yet. Stickers still work, but phones only recognise new tables after this computer syncs and the phones sync.</p>' : '') +
+    '<label>Paper <select id="paper">' +
+      '<option value="label"' + (qrPaper() === 'label' ? ' selected' : '') + '>Sticker printer – 100 × 50 mm labels (1 sticker per label)</option>' +
+      '<option value="a4"' + (qrPaper() === 'a4' ? ' selected' : '') + '>A4 paper – 10 stickers per page (cut out)</option></select></label>' +
+    '<p class="muted">In the print window: Scale <b>100%</b> (not "Fit to page"), Margins <b>None</b>' +
+      (qrPaper() === 'label' ? ', and choose the sticker printer with paper size 100 × 50 mm.' : ', paper A4.') + '</p>' +
     '<label>Plot <select id="qp">' + plots.map(function (p) { return '<option value="' + p.id + '"' + (p.id === qrPlotId ? ' selected' : '') + '>' + esc(p.name) + '</option>'; }).join('') + '</select></label>' +
     '<div class="row"><button class="btn btn-light btn-small" id="all">Tick all</button><button class="btn btn-light btn-small" id="none">Untick all</button></div>' +
     '<div class="checks"><label class="check"><input type="checkbox" id="ps"> Whole-plot sticker</label>' +
     tl.map(function (t) { return '<label class="check"><input type="checkbox" data-qt="' + t.id + '" checked> ' + esc(t.name) + '</label>'; }).join('') + '</div>' +
     (tl.length ? '' : '<p class="empty">This plot has no tables yet. Add them in "Plots & tables".</p>') +
     '<button class="btn btn-primary btn-xl" id="print">🖨 Print selected stickers</button><h2>Preview</h2><div class="sheet" id="preview"></div>');
+  document.getElementById('paper').onchange = function (e) { Store.setMeta('qr_paper', e.target.value).then(stay); };
   var qp = document.getElementById('qp');
-  if (qp) qp.onchange = function () { qrPlotId = qp.value; go(screenAdmin); };
+  if (qp) qp.onchange = function () { qrPlotId = qp.value; stay(); };
   function selected() {
     var out = [];
     if (document.getElementById('ps').checked) out.push(stickerHtml('plot', byId('plots', qrPlotId)));
@@ -451,7 +466,8 @@ function tabQR() {
   document.getElementById('none').onclick = function () { appEl.querySelectorAll('.checks input').forEach(function (c) { c.checked = false; }); preview(); };
   document.getElementById('print').onclick = function () {
     var s = selected(); if (!s.length) return toast('Nothing selected');
-    document.getElementById('print-area').innerHTML = '<div class="sheet">' + s.join('') + '</div>';
+    setPrintPage(qrPaper());
+    document.getElementById('print-area').innerHTML = '<div class="sheet ' + (qrPaper() === 'label' ? 'sheet-label' : 'sheet-a4') + '">' + s.join('') + '</div>';
     setTimeout(function () { window.print(); }, 100);
   };
   preview();
@@ -470,7 +486,7 @@ function tabAccount() {
     '<div class="row"><button class="btn btn-secondary btn-small" id="sn">↻ Sync now</button>' + (Sync.configured ? '<button class="btn btn-light btn-small" id="lo">Log out</button>' : '') + '</div></div>' +
     '<div class="card"><div class="card-title">Backup</div><p class="muted">Download everything this computer has as one file (keep it somewhere safe).</p>' +
     '<button class="btn btn-secondary btn-small" id="bk">⬇ Download backup</button></div>');
-  document.getElementById('sn').onclick = function () { Sync.syncNow().then(function () { go(screenAdmin); }); };
+  document.getElementById('sn').onclick = function () { Sync.syncNow().then(function () { stay(); }); };
   var lo = document.getElementById('lo');
   if (lo) lo.onclick = function () {
     if (n && !confirm(n + ' changes are not synced yet. Log out anyway? (They stay on this computer.)')) return;
