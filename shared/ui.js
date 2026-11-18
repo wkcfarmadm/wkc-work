@@ -28,6 +28,14 @@ function go(fn) {
   window.scrollTo(0, 0);
 }
 
+// Redraw the current screen after a change, keeping the page where it is (no jump to top).
+function stay() {
+  if (!currentScreen) return;
+  var y = window.scrollY;
+  currentScreen();
+  window.scrollTo(0, y);
+}
+
 function refreshIfIdle() {
   var ae = document.activeElement;
   if (ae && /INPUT|SELECT|TEXTAREA/.test(ae.tagName)) return;     // never disturb typing

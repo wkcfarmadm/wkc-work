@@ -112,26 +112,29 @@ input, select { min-height: 48px; padding: 8px 10px; border: 1px solid #bbb; bor
 .file-label { display: block; margin: 10px 0; }
 
 /* Stickers (screen preview + print) */
-.sheet { display: flex; flex-wrap: wrap; gap: 4mm; }
-.sticker { width: 88mm; height: 50mm; border: 1px dashed #999; border-radius: 3mm; padding: 3mm; display: flex; gap: 3mm; align-items: center; background: #fff; break-inside: avoid; page-break-inside: avoid; }
-.sticker .qr { width: 42mm; height: 42mm; flex: 0 0 42mm; }
+/* Stickers: 100 mm x 50 mm. On A4 paper: 2 across x 5 down = 10 per page (cut on the dashed lines). */
+.sheet { display: flex; flex-wrap: wrap; gap: 0; }
+.sticker { width: 100mm; height: 50mm; border: 0.2mm dashed #999; padding: 3mm 4mm; display: flex; gap: 4mm; align-items: center; background: #fff; overflow: hidden; break-inside: avoid; page-break-inside: avoid; }
+.sticker .qr { width: 44mm; height: 44mm; flex: 0 0 44mm; }
 .st-text { flex: 1; min-width: 0; color: #000; }
-.st-plot { font-size: 15pt; font-weight: 700; }
-.st-table { font-size: 24pt; font-weight: 800; line-height: 1.1; margin-bottom: 2mm; word-break: break-word; }
-.st-line { font-size: 10pt; }
+.st-plot { font-size: 16pt; font-weight: 700; line-height: 1.15; }
+.st-table { font-size: 30pt; font-weight: 800; line-height: 1.05; margin: 1mm 0 2mm; word-break: break-word; }
+.st-line { font-size: 11pt; }
 .st-brand { font-size: 8pt; color: #555; margin-top: 2mm; }
 #print-area { display: none; }
 
 @media print {
-  @page { size: A4; margin: 10mm; }
   body { background: #fff; }
   body > *:not(#print-area) { display: none !important; }
   #print-area { display: block; }
+  html, body { margin: 0 !important; padding: 0 !important; }
+  .sheet-label { display: block; }
+  .sheet-label .sticker { border: 0; break-after: page; page-break-after: always; }
+  .sheet-label .sticker:last-child { break-after: auto; page-break-after: auto; }
 }
 @media (max-width: 420px) {
   .grid-work { grid-template-columns: 1fr 1fr; }
   .btn-work { min-height: 110px; font-size: 19px; }
-  .sheet .sticker { transform-origin: top left; }
 }
 
 /* ---- v2 additions ---- */
@@ -158,3 +161,6 @@ input, select { min-height: 48px; padding: 8px 10px; border: 1px solid #bbb; bor
 .admin-body main { max-width: 1200px; }
 .topbar.admin { background: #1d3f73; }
 .topbar.buah { background: #b3262e; }
+
+/* screen preview on small screens: shrink stickers to fit */
+@media screen and (max-width: 440px) { #preview .sticker { zoom: 0.85; } }
