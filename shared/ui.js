@@ -19,6 +19,7 @@ function render(html) {
 // Show a screen. Screens marked .refreshable are redrawn when new data arrives from the server.
 function go(fn) {
   var args = Array.prototype.slice.call(arguments, 1);
+  if (window.wkcUpdateReady && fn === HOME) { location.reload(); return; }
   if (typeof Scanner !== 'undefined') Scanner.stop();
   clearInterval(liveTimer); liveTimer = null;
   clearTimeout(autoHomeTimer); autoHomeTimer = null;
@@ -329,6 +330,16 @@ function bootApp(options) {
       '</p><p>Private/incognito mode may block storage. Open the app in a normal browser window.</p></div>';
   });
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('sw.js').catch(function (e) { console.warn('Service worker not registered', e); });
+    var hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register('sw.js').then(function (reg) {
+      // look for a new version whenever the app is opened or comes back to the screen
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) reg.update().catch(function () {}); });
+    }).catch(function (e) { console.warn('Service worker not registered', e); });
+    // A new version was installed: reload now on a start screen, or the next time the start screen is shown.
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!hadController) { hadController = true; return; }
+      window.wkcUpdateReady = true;
+      if (currentRefreshable && !busy) location.reload();
+    });
   }
 }
