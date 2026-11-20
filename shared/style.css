@@ -112,7 +112,7 @@ input, select { min-height: 48px; padding: 8px 10px; border: 1px solid #bbb; bor
 .file-label { display: block; margin: 10px 0; }
 
 /* Stickers (screen preview + print) */
-/* Stickers: 100 mm x 50 mm. On A4 paper: 2 across x 5 down = 10 per page (cut on the dashed lines). */
+/* Stickers: 100 mm x 50 mm landscape. On A4 landscape: 2 across x 4 down = 8 per page (cut on the dashed lines). */
 .sheet { display: flex; flex-wrap: wrap; gap: 0; }
 .sticker { width: 100mm; height: 50mm; border: 0.2mm dashed #999; padding: 3mm 4mm; display: flex; gap: 4mm; align-items: center; background: #fff; overflow: hidden; break-inside: avoid; page-break-inside: avoid; }
 .sticker .qr { width: 44mm; height: 44mm; flex: 0 0 44mm; }
@@ -131,6 +131,11 @@ input, select { min-height: 48px; padding: 8px 10px; border: 1px solid #bbb; bor
   .sheet-label { display: block; }
   .sheet-label .sticker { border: 0; break-after: page; page-break-after: always; }
   .sheet-label .sticker:last-child { break-after: auto; page-break-after: auto; }
+  .sheet-rot { display: block; }
+  .sheet-rot .sticker-wrap { position: relative; width: 50mm; height: 100mm; overflow: hidden; break-after: page; page-break-after: always; }
+  .sheet-rot .sticker-wrap:last-child { break-after: auto; page-break-after: auto; }
+  .sheet-rot .sticker { position: absolute; top: 0; left: 50mm; border: 0; transform-origin: top left; transform: rotate(90deg); }
+  .sheet-a4 { width: 287mm; }
 }
 @media (max-width: 420px) {
   .grid-work { grid-template-columns: 1fr 1fr; }
