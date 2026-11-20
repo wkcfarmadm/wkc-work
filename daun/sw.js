@@ -1,5 +1,5 @@
 /* Offline support for this app. When ANY app or shared file changes, increase VERSION. */
-var VERSION = 'wkc2-daun-1.0.3';
+var VERSION = 'wkc2-daun-1.0.4';
 var PREFIX = 'wkc2-daun-';
 var FILES = [
   './', 'index.html', 'manifest.webmanifest', '../shared/worker.js',
