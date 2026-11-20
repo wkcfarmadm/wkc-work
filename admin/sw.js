@@ -1,5 +1,5 @@
 /* Offline support for this app. When ANY app or shared file changes, increase VERSION. */
-var VERSION = 'wkc2-admin-1.0.3';
+var VERSION = 'wkc2-admin-1.0.4';
 var PREFIX = 'wkc2-admin-';
 var FILES = [
   './', 'index.html', 'manifest.webmanifest', 'admin.js',

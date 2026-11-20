@@ -428,9 +428,11 @@ function qrPaper() { return Store.getMeta('qr_paper', 'label'); }
 function setPrintPage(kind) {
   var el = document.getElementById('page-style');
   if (!el) { el = document.createElement('style'); el.id = 'page-style'; document.head.appendChild(el); }
-  el.textContent = kind === 'label'
-    ? '@media print { @page { size: 100mm 50mm; margin: 0; } }'
-    : '@media print { @page { size: A4; margin: 5mm; } }';
+  el.textContent = '@media print { @page { ' + ({
+    label: 'size: 100mm 50mm; margin: 0;',          // landscape label
+    'label-rot': 'size: 50mm 100mm; margin: 0;',    // printer defines the label tall: turn the sticker
+    a4: 'size: A4 landscape; margin: 5mm;'
+  }[kind] || 'size: 100mm 50mm; margin: 0;') + ' } }';
 }
 function tabQR() {
   var plots = activePlots();
@@ -440,11 +442,15 @@ function tabQR() {
   render(adminHeader() +
     '<p class="muted">Choose a plot, tick the stickers you need, then Print. Each table sticker shows the plot, table and table capacity.</p>' +
     (unsynced ? '<p class="warn">Some tables are not synced yet. Stickers still work, but phones only recognise new tables after this computer syncs and the phones sync.</p>' : '') +
-    '<label>Paper <select id="paper">' +
-      '<option value="label"' + (qrPaper() === 'label' ? ' selected' : '') + '>Sticker printer – 100 × 50 mm labels (1 sticker per label)</option>' +
-      '<option value="a4"' + (qrPaper() === 'a4' ? ' selected' : '') + '>A4 paper – 10 stickers per page (cut out)</option></select></label>' +
+    '<label>Paper <select id="paper">' + [
+      ['label', 'Sticker printer – 100 × 50 mm, landscape (1 sticker per label)'],
+      ['label-rot', 'Sticker printer set up as 50 × 100 mm (sticker is turned to landscape)'],
+      ['a4', 'A4 paper, landscape – 8 stickers per page (cut out)']
+    ].map(function (o) { return '<option value="' + o[0] + '"' + (qrPaper() === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>' +
     '<p class="muted">In the print window: Scale <b>100%</b> (not "Fit to page"), Margins <b>None</b>' +
-      (qrPaper() === 'label' ? ', and choose the sticker printer with paper size 100 × 50 mm.' : ', paper A4.') + '</p>' +
+      ({ label: ', choose the sticker printer, paper size 100 × 50 mm, Layout <b>Landscape</b>.',
+         'label-rot': ', choose the sticker printer, paper size 50 × 100 mm. Use this only if the first option prints sideways or small.',
+         a4: ', paper A4, Layout <b>Landscape</b>.' })[qrPaper()] + '</p>' +
     '<label>Plot <select id="qp">' + plots.map(function (p) { return '<option value="' + p.id + '"' + (p.id === qrPlotId ? ' selected' : '') + '>' + esc(p.name) + '</option>'; }).join('') + '</select></label>' +
     '<div class="row"><button class="btn btn-light btn-small" id="all">Tick all</button><button class="btn btn-light btn-small" id="none">Untick all</button></div>' +
     '<div class="checks"><label class="check"><input type="checkbox" id="ps"> Whole-plot sticker</label>' +
@@ -467,7 +473,9 @@ function tabQR() {
   document.getElementById('print').onclick = function () {
     var s = selected(); if (!s.length) return toast('Nothing selected');
     setPrintPage(qrPaper());
-    document.getElementById('print-area').innerHTML = '<div class="sheet ' + (qrPaper() === 'label' ? 'sheet-label' : 'sheet-a4') + '">' + s.join('') + '</div>';
+    var kind = qrPaper();
+    if (kind === 'label-rot') s = s.map(function (h) { return '<div class="sticker-wrap">' + h + '</div>'; });
+    document.getElementById('print-area').innerHTML = '<div class="sheet ' + ({ label: 'sheet-label', 'label-rot': 'sheet-rot', a4: 'sheet-a4' }[kind] || 'sheet-label') + '">' + s.join('') + '</div>';
     setTimeout(function () { window.print(); }, 100);
   };
   preview();
